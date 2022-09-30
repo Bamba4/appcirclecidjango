@@ -24,7 +24,7 @@ class Query(graphene.ObjectType):
         if search:
             filter = (
                 Q(title__icontains=search) |
-                Q(description__icontains=search) |                
+                Q(description__icontains=search) |
                 Q(url__icontains=search) |
                 Q(posted_by__username__icontains=search)
             )
@@ -45,6 +45,9 @@ class NewTrack(graphene.relay.ClientIDMutation):
 
     def mutate_and_get_payload(root, info, **args):
         context = info.context
+        if context.is_anonymous:
+            raise GraphQLError('Log in to add track')
+        user = context.user
         title = args['title']
         description = args['description']
         url = args['url']
